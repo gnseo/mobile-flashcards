@@ -1,0 +1,157 @@
+import React from 'react'
+import { StyleSheet, TextInput, Text, View, ScrollView, TouchableOpacity } from 'react-native';
+import { connect } from 'react-redux'
+import { NavigationActions } from 'react-navigation'
+import { AppLoading } from 'expo'
+
+//import { quiz } from '../actions'
+
+class Quiz extends React.Component {
+
+  state = {
+    showingQuestion: true,
+    showingAnswer: false,
+    count: 0,
+    total: 0,
+    correct: 0
+  }
+
+  componentDidMount(){
+    this.setState((state) => ( {
+      total: this.props.selectedDeck.questions.length,
+      count: 1
+    }))
+  }
+
+  handleSubmit = (correct) => {
+    this.setState((state) => ({
+      count: state.count + 1,
+      showingAnswer: false,
+      showingQuestion: true,
+      correct: state.correct + correct
+    }))
+  }
+
+  toggleContent(){
+    this.state.showingAnswer
+      ? this.setState({showingAnswer: false})
+      : this.setState({showingAnswer: true})
+
+    this.state.showingQuestion
+      ? this.setState({showingQuestion: false})
+      : this.setState({showingQuestion: true})
+  }
+
+  render(){
+    const { count, total, correct, showingAnswer, showingQuestion } = this.state
+    const { questions } = this.props.selectedDeck
+    const index = count - 1
+
+    {
+      if ( count > total ){
+        return (
+          <View style={[styles.container, {
+              alignItems: 'center',
+              justifyContent: 'center',
+            }]}>
+            <Text style={{fontSize: 20}}>Score is {Math.round(correct / total * 100)}%.</Text>
+          </View>
+        )
+      }
+      if ( typeof questions[index] === 'undefined' ){
+        return (
+          <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <Text style={{fontSize: 20}}>Loading...</Text>
+          </View>
+        )
+      }
+    }
+
+    return (
+      <View style={styles.container}>
+
+        <Text style={{padding: 10, fontSize: 15}}>{count}/{total}</Text>
+
+        <ScrollView contentContainerStyle={[styles.container, {
+            paddingLeft: 30,
+            paddingRight: 30,
+            paddingTop: 40,
+            paddingBottom: 10,
+          }]}>
+
+          {
+            showingQuestion && <Text style={styles.qna}>{questions[index].question}</Text>
+          }
+
+          {
+            showingAnswer && <Text style={styles.qna}>{questions[index].answer}</Text>
+          }
+
+          <TouchableOpacity
+              onPress={() => this.toggleContent()}
+              style={{
+                alignItems: 'center',
+                padding: 10,
+                marginBottom: 40,
+              }}>
+            <Text style={{color: 'red'}}>
+              { showingAnswer && 'Question' }
+              { showingQuestion && 'Answer' }
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+              style={[styles.item, {
+                backgroundColor: 'green'
+              }]}
+              onPress={() => this.handleSubmit(1)}>
+                <Text style={styles.CoInBtn}>Corrent</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+              style={[styles.item, {
+                backgroundColor: 'crimson'
+              }]}
+              onPress={() => this.handleSubmit(0)}>
+                <Text style={styles.CoInBtn}>Incorrent</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </View>
+    )
+  }
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    justifyContent: 'flex-start',
+  },
+
+  item: {
+    padding: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#eee',
+    borderRadius: 10,
+    marginBottom: 10
+  },
+
+  CoInBtn: {
+    fontSize: 20,
+    color: 'white',
+  },
+
+  qna: {
+    fontSize: 30
+  }
+});
+
+function mapStateToProps(state){
+  return{
+    selectedDeck: state.selectedDeck
+  }
+}
+
+export default connect(
+  mapStateToProps
+)(Quiz)
