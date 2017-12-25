@@ -1,5 +1,12 @@
 import React from 'react'
-import { StyleSheet, TextInput, Text, KeyboardAvoidingView, TouchableOpacity } from 'react-native';
+import {
+    StyleSheet,
+    TextInput,
+    Text,
+    KeyboardAvoidingView,
+    TouchableOpacity,
+    Alert
+  } from 'react-native';
 import { NavigationActions } from 'react-navigation'
 import { connect } from 'react-redux'
 
@@ -11,6 +18,21 @@ class AddCard extends React.Component {
   state = {
     question: "",
     answer: ""
+  }
+
+  validateEntries(){
+    if ( this.state.question === "" || this.state.answer === "" ){
+      Alert.alert(
+        'Empty Entries',
+        'Please fill the entries',
+        [
+          {text: 'OK'},
+        ],
+        { cancelable: false }
+      )
+    }else{
+      this.handleSubmit()
+    }
   }
 
   handleSubmit = () => {
@@ -47,7 +69,7 @@ class AddCard extends React.Component {
               backgroundColor: '#555',
               alignItems: 'center'
             }]}
-            onPress={() => this.handleSubmit()}>
+            onPress={() => this.validateEntries()}>
           <Text style={styles.submitBtn}>Submit</Text>
         </TouchableOpacity>
       </KeyboardAvoidingView>

@@ -1,9 +1,18 @@
 import React from 'react'
-import { StyleSheet, TextInput, Text, View, KeyboardAvoidingView, TouchableOpacity, Keyboard } from 'react-native';
+import {
+    StyleSheet,
+    TextInput,
+    Text,
+    View,
+    KeyboardAvoidingView,
+    TouchableOpacity,
+    Keyboard,
+    Alert
+  } from 'react-native';
 import { connect } from 'react-redux'
 import { NavigationActions } from 'react-navigation'
 
-import { addDeck } from '../actions'
+import { addDeck, selectDeck } from '../actions'
 import { saveDeckTitle } from '../utils/api'
 
 class AddDeck extends React.Component {
@@ -12,18 +21,43 @@ class AddDeck extends React.Component {
     title: "",
   }
 
+  validateEntries(){
+    if ( this.state.title === "" ){
+      Alert.alert(
+        'Empty Entries',
+        'Please fill the entries',
+        [
+          {text: 'OK'},
+        ],
+        { cancelable: false }
+      )
+    }else{
+      this.handleSubmit()
+    }
+  }
+
   handleSubmit = () => {
-    saveDeckTitle({title: this.state.title})
+    const newDeck = {
+      title: this.state.title,
+      questions: []
+    }
+
+    saveDeckTitle({title: newDeck.title})
 
     this.props.dispatch(addDeck({
-      title: this.state.title
+      title: newDeck.title
     }))
+
+    this.props.dispatch(selectDeck(newDeck))
+    this.props.navigation.navigate(
+      'DeckDetail',
+      {deck: newDeck}
+    )
 
     this.setState({title: ""})
 
     Keyboard.dismiss()
 
-    this.props.navigation.dispatch(NavigationActions.back({key: 'AddDeck'}))
   }
 
   render(){
@@ -45,7 +79,7 @@ class AddDeck extends React.Component {
                 justifyContent: 'center',
                 backgroundColor: '#333'
               }]}
-              onPress={this.handleSubmit}>
+              onPress={() => this.validateEntries()}>
             <Text style={styles.submitBtn}>Submit</Text>
           </TouchableOpacity>
         </KeyboardAvoidingView>

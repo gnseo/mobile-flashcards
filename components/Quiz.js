@@ -6,20 +6,21 @@ import { AppLoading } from 'expo'
 
 //import { quiz } from '../actions'
 
+const initialState = {
+  showingQuestion: true,
+  showingAnswer: false,
+  count: 1,
+  total: 0,
+  correct: 0
+}
+
 class Quiz extends React.Component {
 
-  state = {
-    showingQuestion: true,
-    showingAnswer: false,
-    count: 0,
-    total: 0,
-    correct: 0
-  }
+  state = initialState
 
   componentDidMount(){
     this.setState((state) => ( {
-      total: this.props.selectedDeck.questions.length,
-      count: 1
+      total: this.props.selectedDeck.questions.length
     }))
   }
 
@@ -42,6 +43,14 @@ class Quiz extends React.Component {
       : this.setState({showingQuestion: true})
   }
 
+  handleRestartQuiz(){
+    this.setState({...initialState, total: this.props.selectedDeck.questions.length})
+  }
+
+  handleBackToDeck(){
+    this.props.navigation.dispatch(NavigationActions.back())
+  }
+
   render(){
     const { count, total, correct, showingAnswer, showingQuestion } = this.state
     const { questions } = this.props.selectedDeck
@@ -55,6 +64,14 @@ class Quiz extends React.Component {
               justifyContent: 'center',
             }]}>
             <Text style={{fontSize: 20}}>Score is {Math.round(correct / total * 100)}%.</Text>
+            <View style={styles.item}>
+              <TouchableOpacity style={styles.restartQuiz} onPress={()=>this.handleRestartQuiz()}>
+                <Text>Restart Quiz</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.backToDeck} onPress={()=>this.handleBackToDeck()}>
+                <Text style={{color: '#fff',}}>Back to Deck</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )
       }
@@ -143,6 +160,26 @@ const styles = StyleSheet.create({
 
   qna: {
     fontSize: 30
+  },
+
+  restartQuiz: {
+    padding: 20,
+    paddingLeft: 40,
+    paddingRight: 40,
+    borderWidth: 1,
+    borderColor: '#555',
+    borderRadius: 10,
+    backgroundColor: '#fff'
+  },
+  backToDeck: {
+    marginTop: 20,
+    padding: 20,
+    paddingLeft: 40,
+    paddingRight: 40,
+    borderWidth: 1,
+    borderColor: '#fff',
+    borderRadius: 10,
+    backgroundColor: '#111'
   }
 });
 
